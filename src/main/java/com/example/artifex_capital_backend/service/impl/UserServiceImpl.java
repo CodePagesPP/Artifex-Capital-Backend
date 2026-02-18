@@ -1,20 +1,19 @@
 package com.example.artifex_capital_backend.service.impl;
 
-import com.example.artifex_capital_backend.Repository.AdminRepository;
-import com.example.artifex_capital_backend.Repository.RoleRepository;
-import com.example.artifex_capital_backend.Repository.UserRepository;
+import com.example.artifex_capital_backend.Repository.*;
 import com.example.artifex_capital_backend.dto.AdminDTO;
+import com.example.artifex_capital_backend.dto.ClientRegistrationDTO;
 import com.example.artifex_capital_backend.dto.UserCreateDTO;
 import com.example.artifex_capital_backend.dto.UserDTO;
-import com.example.artifex_capital_backend.model.Admin;
-import com.example.artifex_capital_backend.model.RoleE;
-import com.example.artifex_capital_backend.model.User;
+import com.example.artifex_capital_backend.model.*;
+import com.example.artifex_capital_backend.service.EmailService;
 import com.example.artifex_capital_backend.service.UserService;
 import jakarta.persistence.EntityExistsException;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
@@ -28,7 +27,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository2;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
-
+    private final ProjectRepository projectRepository;
+    private final ClientRepository clientRepository;
+    private final EmailService emailService;
     @Override
     public UserDTO registerAdmin(AdminDTO admin) {
         if(adminRepository.findByEmail(admin.getEmail()).isPresent()){
@@ -54,29 +55,20 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO registerUser(UserCreateDTO dto) {
-
         if(userRepository2.findByEmail(dto.getEmail()).isPresent()){
             throw new EntityExistsException("El usuario con este email ya existe");
         }
-
-
         RoleE roleEntity = roleRepository.findByName(dto.getRole())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado: " + dto.getRole()));
-
-
         User userToSave;
-
         switch (dto.getRole()) {
             case "ADMIN":
-
                 userToSave = Admin.builder().build();
                 break;
-
 
             default:
                 throw new IllegalArgumentException("Tipo de rol no soportado para registro");
         }
-
 
         userToSave.setEmail(dto.getEmail());
         userToSave.setName(dto.getName());
@@ -86,13 +78,50 @@ public class UserServiceImpl implements UserService {
         userToSave.setRole(roleEntity);
         userToSave.setCreatedAt(Timestamp.valueOf(LocalDateTime.now()));
 
-
         User savedUser = userRepository2.save(userToSave);
 
         return mapToDTO(savedUser);
     }
 
+    @Override
+    @Transactional
+    public Client registerClient(ClientRegistrationDTO dto) {
 
+
+        RoleE clientRole = roleRepository.findByName("CLIENT")
+                .orElseThrow(() -> new RuntimeException("Error: El rol CLIENT no existe en la base de datos."));
+
+
+        Project project = projectRepository.findById(dto.getProjectId())
+                .orElseThrow(() -> new RuntimeException("Error: Proyecto no encontrado con ID: " + dto.getProjectId()));
+
+
+        if (clientRepository.existsByEmail(dto.getEmail())) {
+            throw new RuntimeException("Error: El correo ya está registrado.");
+        }
+
+
+        Client client = new Client();
+
+        client.setName(dto.getName());
+        client.setLastName(dto.getLastName());
+        client.setEmail(dto.getEmail());
+        client.setPassword(passwordEncoder.encode(dto.getPassword())); // ¡Encriptamos contraseña!
+        client.setSex(dto.getSex());
+        client.setRole(clientRole);
+        client.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+
+
+        client.setPhoneNumber(dto.getPhoneNumber());
+        client.setCountry(dto.getCountry());
+        client.setCity(dto.getCity());
+        client.setPlannedInvestment(dto.getPlannedInvestment());
+        client.setProjectOfInterest(project);
+
+        Client savedClient = clientRepository.save(client);
+        emailService.sendNewClientNotification(savedClient);
+        return savedClient;
+    }
 
 
     @Override

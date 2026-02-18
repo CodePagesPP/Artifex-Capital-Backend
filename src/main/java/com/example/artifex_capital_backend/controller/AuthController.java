@@ -3,10 +3,8 @@ package com.example.artifex_capital_backend.controller;
 import com.example.artifex_capital_backend.Repository.UserRepository;
 import com.example.artifex_capital_backend.auth.AuthRequest;
 import com.example.artifex_capital_backend.auth.AuthResponse;
-import com.example.artifex_capital_backend.dto.AdminDTO;
-import com.example.artifex_capital_backend.dto.UserCreateDTO;
-import com.example.artifex_capital_backend.dto.UserDTO;
-import com.example.artifex_capital_backend.dto.UserProfileDTO;
+import com.example.artifex_capital_backend.dto.*;
+import com.example.artifex_capital_backend.model.Client;
 import com.example.artifex_capital_backend.model.User;
 import com.example.artifex_capital_backend.service.AuthService;
 import com.example.artifex_capital_backend.service.UserService;
@@ -16,6 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
+
 @RestController
 @RequestMapping("/auth")
 
@@ -24,10 +24,21 @@ public class AuthController {
     private final AuthService authService;
     private final UserService userService;
     private final UserRepository userRepository;
-
     @PostMapping("/registerAdmin")
     public ResponseEntity<UserDTO> register(@RequestBody AdminDTO request){
         return ResponseEntity.ok(userService.registerAdmin(request));
+    }
+
+    @PostMapping("/register-client")
+    public ResponseEntity<?> registerClient(@RequestBody ClientRegistrationDTO clientDTO) {
+        try {
+            Client newClient = userService.registerClient(clientDTO);
+            return ResponseEntity.ok(Collections.singletonMap("message", "Cliente registrado exitosamente con ID: " + newClient.getId()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Collections.singletonMap("error", "Error interno del servidor"));
+        }
     }
 
     @PostMapping("/registerUser")
