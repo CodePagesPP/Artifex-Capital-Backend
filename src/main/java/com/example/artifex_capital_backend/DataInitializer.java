@@ -36,10 +36,10 @@ public class DataInitializer implements CommandLineRunner {
     private void createPermissionsAndRoles() {
         // PERMISOOOOOOOOSSS
         Permission adminPermission = createPermissionIfNotExists("ADMIN_ACCESS");
-
+        Permission clientPermission = createPermissionIfNotExists("CLIENT_ACCESS");
         // Roles con sus permisos
         createRoleIfNotExists("ADMIN", "ROL ADMIN", Set.of(adminPermission));
-
+        createRoleIfNotExists("CLIENT", "ROL CLIENTE", Set.of(clientPermission));
     }
 
 

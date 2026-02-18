@@ -51,8 +51,7 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login","/auth/registerAdmin").permitAll()
-                        .requestMatchers("/public/images/**").permitAll()
+                        .requestMatchers("/auth/login","/auth/registerAdmin", "/auth/register-client","/public/images/**", "/projects/**").permitAll()
                         .requestMatchers("/auth/profile").authenticated()
                         .requestMatchers("/admin/**",
                                 "/rol/**",
