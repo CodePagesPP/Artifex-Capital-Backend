@@ -1,13 +1,15 @@
 package com.example.artifex_capital_backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name="clients")
@@ -26,4 +28,7 @@ public class Client extends User {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project projectOfInterest;
+
+    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ClientProject> assignedProjects = new ArrayList<>();
 }
