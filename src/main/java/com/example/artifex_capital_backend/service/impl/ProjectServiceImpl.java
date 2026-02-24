@@ -6,6 +6,10 @@ import com.example.artifex_capital_backend.model.Project;
 import com.example.artifex_capital_backend.service.ProjectService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,9 +63,10 @@ public class ProjectServiceImpl implements ProjectService {
         return mapToDTO(project);
     }
 
+    // ProjectServiceImpl.java
     @Override
     public List<ProjectDTO> getAllProjects() {
-        return projectRepository.findAll().stream()
+        return projectRepository.findAll(Sort.by("id").descending()).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
