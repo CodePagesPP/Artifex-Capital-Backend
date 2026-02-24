@@ -52,7 +52,13 @@ public class SecurityConfig {
                 .cors(withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/login","/auth/registerAdmin", "/auth/register-client","/public/images/**", "/projects/**").permitAll()
+                        .requestMatchers("/auth/login",
+                                         "/auth/registerAdmin",
+                                         "/auth/register-client",
+                                         "/auth/forgot-password",
+                                         "/auth/reset-password",
+                                         "/public/images/**",
+                                         "/projects/**").permitAll()
                         .requestMatchers("/auth/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/clients/me/projects").authenticated()
                         .requestMatchers("/admin/**",

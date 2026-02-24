@@ -19,12 +19,12 @@ import java.util.List;
 public class EmailServiceImpl implements EmailService {
 
     private final JavaMailSender mailSender;
-    private final UserRepository userRepository; // 1. Inyectamos el repositorio
+    private final UserRepository userRepository;
 
-    @Async // Importante para que el bucle no congele la respuesta al usuario
+    @Async
     public void sendNewClientNotification(Client client) {
 
-        // 2. Buscamos TODOS los administradores
+
         List<User> admins = userRepository.findByRole_Name("ADMIN");
 
         if (admins.isEmpty()) {
@@ -32,21 +32,21 @@ public class EmailServiceImpl implements EmailService {
             return;
         }
 
-        // 3. Preparamos el contenido una sola vez (para eficiencia)
+
         String subject = "🚀 Nuevo Inversionista: " + client.getName();
         String htmlContent = buildEmailContent(client);
 
-        // 4. Iteramos y enviamos
+
         for (User admin : admins) {
             try {
-                // Validación extra por si el admin no tiene email
+
                 if (admin.getEmail() == null || admin.getEmail().isEmpty()) continue;
 
                 MimeMessage message = mailSender.createMimeMessage();
                 MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
                 helper.setFrom("noreply@artifex.com");
-                helper.setTo(admin.getEmail()); // Aquí usamos el email de CADA admin
+                helper.setTo(admin.getEmail());
                 helper.setSubject(subject);
                 helper.setText(htmlContent, true);
 
@@ -55,40 +55,88 @@ public class EmailServiceImpl implements EmailService {
 
             } catch (MessagingException e) {
                 System.err.println("❌ Error enviando a " + admin.getEmail() + ": " + e.getMessage());
-                // Continuamos con el siguiente admin aunque este falle
+
             }
         }
     }
 
 
     private String buildEmailContent(Client client) {
-        return """
-            <html>
-            <body>
-                <h2 style="color: #0F2B3F;">Nuevo Registro de Inversionista</h2>
-                <p>Un nuevo cliente se ha registrado en la plataforma.</p>
-                
-                <h3>Datos del Cliente:</h3>
-                <ul>
-                    <li><strong>Nombre:</strong> %s %s</li>
-                    <li><strong>Email:</strong> %s</li>
-                    <li><strong>Teléfono:</strong> %s</li>
-                    <li><strong>País/Ciudad:</strong> %s, %s</li>
-                </ul>
+        String projectName = client.getProjectOfInterest() != null
+                ? client.getProjectOfInterest().getTitle()
+                : "No specific project";
 
-                <h3>Interés de Inversión:</h3>
-                <ul>
-                    <li><strong>Proyecto:</strong> %s</li>
-                    <li><strong>Monto Planeado:</strong> $%s</li>
-                </ul>
-            </body>
-            </html>
-            """.formatted(
+        return """
+        <html>
+        <body style="margin: 0; padding: 0; background-color: #f4f5f7;">
+            <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f5f7; padding: 40px 20px;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                    
+                    <div style="background-color: #0F2B3F; padding: 25px; text-align: center;">
+                        <h2 style="margin: 0; color: #ffffff; font-size: 22px; letter-spacing: 1px;">New Investor Registration</h2>
+                    </div>
+                    
+                    <div style="padding: 35px; color: #333333; font-size: 15px; line-height: 1.6;">
+                        <p style="margin-top: 0;">Hello Admin,</p>
+                        <p>A new client has successfully registered on the platform. Here are the details of the prospect:</p>
+
+                        <h3 style="color: #0F2B3F; border-bottom: 2px solid #F83C3C; padding-bottom: 8px; margin-top: 30px; font-size: 18px;">
+                            Client Information
+                        </h3>
+                        <table style="width: 100%%; border-collapse: collapse; margin-top: 15px;">
+                            <tr>
+                                <td style="padding: 8px 0; width: 120px;"><strong>Name:</strong></td>
+                                <td style="padding: 8px 0; color: #555;">%s %s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0;"><strong>Email:</strong></td>
+                                <td style="padding: 8px 0;"><a href="mailto:%s" style="color: #F83C3C; text-decoration: none;">%s</a></td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0;"><strong>Phone:</strong></td>
+                                <td style="padding: 8px 0; color: #555;">%s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0;"><strong>Location:</strong></td>
+                                <td style="padding: 8px 0; color: #555;">%s, %s</td>
+                            </tr>
+                        </table>
+
+                        <h3 style="color: #0F2B3F; border-bottom: 2px solid #F83C3C; padding-bottom: 8px; margin-top: 30px; font-size: 18px;">
+                            Investment Interest
+                        </h3>
+                        <table style="width: 100%%; border-collapse: collapse; margin-top: 15px;">
+                            <tr>
+                                <td style="padding: 8px 0; width: 120px;"><strong>Project:</strong></td>
+                                <td style="padding: 8px 0; font-weight: bold; color: #0F2B3F;">%s</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 8px 0;"><strong>Planned Amount:</strong></td>
+                                <td style="padding: 8px 0; color: #28a745; font-weight: bold;">$%s</td>
+                            </tr>
+                        </table>
+
+                        <div style="text-align: center; margin: 40px 0 10px;">
+                            <a href="http://localhost:4200/clients" style="display: inline-block; padding: 12px 30px; background-color: #0F2B3F; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; transition: background-color 0.3s;">
+                                View in Admin Panel
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <div style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;">
+                        <p style="margin: 0;">Artifex Capital &bull; Automated Admin Notification</p>
+                    </div>
+
+                </div>
+            </div>
+        </body>
+        </html>
+        """.formatted(
                 client.getName(), client.getLastName(),
-                client.getEmail(),
+                client.getEmail(), client.getEmail(),
                 client.getPhoneNumber(),
                 client.getCity(), client.getCountry(),
-                client.getProjectOfInterest().getTitle(),
+                projectName,
                 client.getPlannedInvestment()
         );
     }
