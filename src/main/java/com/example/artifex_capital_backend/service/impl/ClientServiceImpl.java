@@ -1,5 +1,6 @@
 package com.example.artifex_capital_backend.service.impl;
 
+import com.example.artifex_capital_backend.Repository.ClientProjectRepository;
 import com.example.artifex_capital_backend.Repository.ClientRepository;
 import com.example.artifex_capital_backend.Repository.ProjectRepository;
 import com.example.artifex_capital_backend.dto.*;
@@ -7,6 +8,7 @@ import com.example.artifex_capital_backend.model.Client;
 import com.example.artifex_capital_backend.model.ClientProject;
 import com.example.artifex_capital_backend.model.Project;
 import com.example.artifex_capital_backend.service.ClientService;
+import com.example.artifex_capital_backend.service.ProjectService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
 public class ClientServiceImpl implements ClientService {
     private final ClientRepository clientRepository;
     private final ProjectRepository projectRepository;
+    private final ClientProjectRepository clientProjectRepository;
+    private final ProjectService projectService;
+
     @Override
     public Page<ClientResponseDTO> getAllClients(String searchTerm, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -77,6 +82,20 @@ public class ClientServiceImpl implements ClientService {
         return mapToClientResponseDTO(updatedClient);
     }
 
+    @Override
+    public List<ClientProjectResponseDTO> getMyAssignedProjects(long clientId) {
+        Client client = clientRepository.findById(clientId)
+                .orElseThrow(() -> new RuntimeException("Cliente no encontrado"));
+
+        List<ClientProject> assignments = clientProjectRepository.findByClientId(clientId);
+
+        return assignments.stream().map(assignment -> {
+            ClientProjectResponseDTO dto = new ClientProjectResponseDTO();
+            dto.setInvestedAmount(assignment.getInvestedAmount());
+            dto.setProject(projectService.getProjectById(assignment.getProject().getId()));
+            return dto;
+        }).collect(Collectors.toList());
+    }
 
     private ClientResponseDTO mapToClientResponseDTO(Client client) {
         ClientResponseDTO dto = new ClientResponseDTO();

@@ -1,6 +1,7 @@
 package com.example.artifex_capital_backend.service;
 
 import com.example.artifex_capital_backend.dto.ProjectDTO;
+import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;

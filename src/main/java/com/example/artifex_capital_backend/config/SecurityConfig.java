@@ -6,6 +6,7 @@ import com.example.artifex_capital_backend.service.impl.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -53,6 +54,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/login","/auth/registerAdmin", "/auth/register-client","/public/images/**", "/projects/**").permitAll()
                         .requestMatchers("/auth/profile").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/clients/me/projects").authenticated()
                         .requestMatchers("/admin/**",
                                 "/rol/**",
                                 "/permission/**",
