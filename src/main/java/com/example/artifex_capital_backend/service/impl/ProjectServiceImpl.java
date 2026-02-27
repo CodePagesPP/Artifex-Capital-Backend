@@ -63,10 +63,27 @@ public class ProjectServiceImpl implements ProjectService {
         return mapToDTO(project);
     }
 
-    // ProjectServiceImpl.java
+
     @Override
     public List<ProjectDTO> getAllProjects() {
         return projectRepository.findAll(Sort.by("id").descending()).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<ProjectDTO> getPaginatedProjects(String search, String status, int page, int size) {
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        Page<Project> projectPage = projectRepository.searchAndFilterProjects(search, status, pageable);
+
+        return projectPage.map(this::mapToDTO);
+    }
+
+    @Override
+    public List<ProjectDTO> getProjectsInProgress() {
+        return projectRepository.findByStatusOrderByIdDesc("IN_PROGRESS").stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }

@@ -15,8 +15,8 @@ public interface ProjectService {
     List<ProjectDTO> getAllProjects();
 
     ProjectDTO updateProject(Long id, String title, String description, String city, String country, Integer progress, String status, List<MultipartFile> newImages) throws IOException;
-
+    Page<ProjectDTO> getPaginatedProjects(String search, String status, int page, int size);
     void deleteProject(Long id);
-
+    List<ProjectDTO> getProjectsInProgress();
     ProjectDTO deleteImage(Long projectId, String imageUrl);
 }

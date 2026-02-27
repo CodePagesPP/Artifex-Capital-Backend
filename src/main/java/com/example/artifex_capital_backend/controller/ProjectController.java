@@ -3,6 +3,7 @@ package com.example.artifex_capital_backend.controller;
 import com.example.artifex_capital_backend.dto.ProjectDTO;
 import com.example.artifex_capital_backend.service.ProjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +34,18 @@ public class ProjectController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProjectDTO>> getAllProjects() {
-        return ResponseEntity.ok(projectService.getAllProjects());
+    public ResponseEntity<Page<ProjectDTO>> getAllProjects(
+            @RequestParam(required = false, defaultValue = "") String search,
+            @RequestParam(required = false, defaultValue = "") String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        return ResponseEntity.ok(projectService.getPaginatedProjects(search, status, page, size));
+    }
+
+    @GetMapping("/in-progress")
+    public ResponseEntity<List<ProjectDTO>> getActiveProjects() {
+        return ResponseEntity.ok(projectService.getProjectsInProgress());
     }
 
     @GetMapping("/{id}")
