@@ -58,7 +58,8 @@ public class SecurityConfig {
                                          "/auth/forgot-password",
                                          "/auth/reset-password",
                                          "/public/images/**",
-                                         "/projects/**").permitAll()
+                                         "/projects/**",
+                                         "/contact/**").permitAll()
                         .requestMatchers("/auth/profile").authenticated()
                         .requestMatchers(HttpMethod.GET, "/clients/me/projects").authenticated()
                         .requestMatchers("/admin/**",

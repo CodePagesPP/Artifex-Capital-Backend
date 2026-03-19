@@ -1,6 +1,7 @@
 package com.example.artifex_capital_backend.service.impl;
 
 import com.example.artifex_capital_backend.Repository.UserRepository;
+import com.example.artifex_capital_backend.dto.ContactFormDTO;
 import com.example.artifex_capital_backend.model.Client;
 import com.example.artifex_capital_backend.model.User;
 import com.example.artifex_capital_backend.service.EmailService;
@@ -138,6 +139,63 @@ public class EmailServiceImpl implements EmailService {
                 client.getCity(), client.getCountry(),
                 projectName,
                 client.getPlannedInvestment()
+        );
+    }
+
+
+    @Async
+    @Override
+    public void sendContactFormEmail(ContactFormDTO contactForm) {
+        List<User> admins = userRepository.findByRole_Name("ADMIN");
+
+        if (admins.isEmpty()) return;
+
+        String subject = "📩 Nuevo mensaje de contacto: " + contactForm.getFirstName() + " " + contactForm.getLastName();
+        String htmlContent = buildContactEmailContent(contactForm);
+
+        for (User admin : admins) {
+            try {
+                MimeMessage message = mailSender.createMimeMessage();
+                MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+                helper.setFrom("noreply@artifex.com");
+                helper.setTo(admin.getEmail());
+                helper.setSubject(subject);
+                helper.setText(htmlContent, true);
+
+                mailSender.send(message);
+            } catch (MessagingException e) {
+                System.err.println("Error enviando contacto a " + admin.getEmail());
+            }
+        }
+    }
+
+    private String buildContactEmailContent(ContactFormDTO form) {
+        return """
+        <html>
+        <body style="font-family: Arial, sans-serif; color: #333;">
+            <div style="max-width: 600px; margin: 0 auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                <div style="background-color: #0F2B3F; color: white; padding: 20px; text-align: center;">
+                    <h2>New Contact Inquiry</h2>
+                </div>
+                <div style="padding: 20px;">
+                    <p><strong>From:</strong> %s %s</p>
+                    <p><strong>Email:</strong> %s</p>
+                    <p><strong>Phone:</strong> %s</p>
+                    <hr style="border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Message:</strong></p>
+                    <p style="background: #f9f9f9; padding: 15px; border-left: 4px solid #F83C3C;">%s</p>
+                </div>
+                <div style="background: #f4f4f4; padding: 10px; text-align: center; font-size: 12px;">
+                    This message was sent from the Artifex Contact Page.
+                </div>
+            </div>
+        </body>
+        </html>
+        """.formatted(
+                form.getFirstName(), form.getLastName(),
+                form.getEmail(), form.getPhone(),
+                form.getMessage()
         );
     }
 }
