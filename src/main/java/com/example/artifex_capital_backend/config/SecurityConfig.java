@@ -85,7 +85,8 @@ public class SecurityConfig {
 
         configuration.setAllowedOrigins(java.util.List.of(
                 "https://www.artifexcapitalpartners.com",
-                "https://artifexcapitalpartners.com"
+                "https://artifexcapitalpartners.com",
+                "http://localhost:4200"
         ));
 
 
