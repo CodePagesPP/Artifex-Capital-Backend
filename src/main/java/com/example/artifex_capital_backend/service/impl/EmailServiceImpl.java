@@ -104,7 +104,7 @@ public class EmailServiceImpl implements EmailService {
                             <tr><td style="padding: 8px 0;"><strong>Planned Amount:</strong></td><td style="padding: 8px 0; color: #28a745; font-weight: bold;">$%s</td></tr>
                         </table>
                         <div style="text-align: center; margin: 40px 0 10px;">
-                            <a href="http://localhost:4200/clients" style="display: inline-block; padding: 12px 30px; background-color: #0F2B3F; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">View in Admin Panel</a>
+                            <a href="https://www.artifexcapitalpartners.com/login" style="display: inline-block; padding: 12px 30px; background-color: #0F2B3F; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold;">View in Admin Panel</a>
                         </div>
                     </div>
                     <div style="background-color: #f9fafb; padding: 20px; text-align: center; font-size: 12px; color: #999999; border-top: 1px solid #eeeeee;"><p style="margin: 0;">Artifex Capital &bull; Automated Admin Notification</p></div>
