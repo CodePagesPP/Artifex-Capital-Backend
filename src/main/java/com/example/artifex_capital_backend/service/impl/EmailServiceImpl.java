@@ -62,7 +62,7 @@ public class EmailServiceImpl implements EmailService {
     private void sendMailViaResend(String to, String subject, String html) {
         try {
             CreateEmailOptions params = CreateEmailOptions.builder()
-                    .from("onboarding@resend.dev")
+                    .from("Artifex Capital <soporte@artifexcapitalpartners.com>")
                     .to(to)
                     .subject(subject)
                     .html(html)

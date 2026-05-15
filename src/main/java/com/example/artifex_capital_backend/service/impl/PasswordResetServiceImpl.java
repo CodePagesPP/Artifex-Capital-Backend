@@ -44,7 +44,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
         tokenRepository.save(resetToken);
 
         // URL de tu frontend (ajusta si en producción es distinta a localhost)
-        String resetUrl = "http://localhost:4200/reset-password?token=" + token;
+        String resetUrl = "https://www.artifexcapitalpartners.com/reset-password?token=" + token;
 
         String htmlMsg = "<div style=\"font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f5f7; padding: 40px 20px;\">"
                 + "<div style=\"max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);\">"
@@ -68,7 +68,7 @@ public class PasswordResetServiceImpl implements PasswordResetService {
 
         try {
             CreateEmailOptions params = CreateEmailOptions.builder()
-                    .from("onboarding@resend.dev") // Recuerda verificar tu dominio en Resend para usar uno propio
+                    .from("Artifex Capital <soporte@artifexcapitalpartners.com>") // Recuerda verificar tu dominio en Resend para usar uno propio
                     .to(user.getEmail())
                     .subject("Password Reset Request - Artifex Capital")
                     .html(htmlMsg)
